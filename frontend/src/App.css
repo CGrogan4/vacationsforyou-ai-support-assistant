@@ -1,0 +1,35 @@
+/* Floating Chat Button */
+.chat-toggle {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 65px;
+  height: 65px;
+  border-radius: 50%;
+  background-color: #0a89ffff;
+  color: white;
+  font-size: 28px;
+  border: none;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+}
+
+/* Hover over icon*/
+.chat-toggle:hover {
+  background-color: rgb(169, 213, 255);
+  transform: scale(1.05);
+}
+
+/* Chat Window Position (Bottom Right Corner*/
+.chat-widget {
+  position: fixed;
+  bottom: 95px;
+  right: 20px;
+  z-index: 1000;
+}
