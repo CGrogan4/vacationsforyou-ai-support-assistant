@@ -82,7 +82,7 @@ const ChatUI: React.FC = () => {
           value={input}
           onChange={handleChange}
           onKeyDown={handleKeyDown}
-          placeholder="Ask about your next vacation..."
+          placeholder="Type here..."
         />
         <button onClick={sendMessage} disabled={loading}>
           Send
