@@ -6,7 +6,7 @@ A post-booking guest support chatbot built for Vacations for YOU. Guests can ask
 
 ## Project Status
 
-**Milestone 2 — Working Prototype** ✅
+**Milestone 2 — Working Prototype**
 
 - Functional web chat interface (React + Flask)
 - Reservation lookup and validation (mock data + StreamlineVRS hooks)
