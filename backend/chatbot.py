@@ -74,9 +74,84 @@ def log_interaction(session_id: str, user_message: str, bot_reply: str, confiden
 def chat():
     body = request.json
     user_message = body.get("message", "").strip()
+    session_id = body.get("session_id")
 
     if not user_message:
         return jsonify({"error": "Please enter a message."}), 400
+    
+    if session_id not in sessions:
+        session_id = str(uuid.uuid4())
+        sessions[session_id] = {
+            "reservation": None, 
+            "history": [],
+            "state": "normal",
+            "pending_confirmation": None
+        }
+    
+    session = sessions[session_id]
+    state = session.get("state", "normal")
+    
+    # State: waiting for confirmation number
+    if state == "waiting_for_confirmation":
+
+        confirmation = user_message.upper()
+        session["pending_confirmation"] = confirmation
+        session["state"] = "waiting_for_last_name"
+        reply = f"Thanks! Now please provide the last name on the reservation for confirmation number {confirmation}."
+        confidence = "HIGH_CONFIDENCE"
+
+        log_interaction(session_id, user_message, reply, confidence)
+
+        return jsonify({
+            "reply": reply, "confidence": confidence, "session_id": session_id
+        })
+    
+    # State: waiting for last name
+    if state == "waiting_for_last_name":
+        confirmation = session.get("pending_confirmation")
+        last_name = user_message.strip()
+        session["pending_confirmation"] = None
+        session["state"] = "normal"
+
+        # Mock reservation lookup for demo
+        mock_reservations = {
+            "VFY-10042": {"first_name": "Sarah", "last_name": "Mitchell", "property": "Sunset Cove Cottage", "check_in": "April 12, 2026", "check_out": "April 19, 2026"},
+            "VFY-10087": {"first_name": "James", "last_name": "Torres", "property": "Blue Ridge Mountain Cabin", "check_in": "May 3, 2026", "check_out": "May 10, 2026"},
+            "VFY-10155": {"first_name": "Linda", "last_name": "Park", "property": "Gulf Shore Villa", "check_in": "June 21, 2026", "check_out": "June 28, 2026"},
+        }
+
+        
+
+        reservation = mock_reservations.get(confirmation)
+
+        if not reservation:
+            reply = f"Sorry, I couldn't find a reservation with confirmation number {confirmation}. Please check the number and try again."
+            confidence = "OUT_OF_SCOPE"
+        elif reservation["last_name"].lower() != last_name.lower():
+            reply = f"Sorry, the last name {last_name} does not match our records for confirmation number {confirmation}. Please check and try again."
+            confidence = "OUT_OF_SCOPE"
+        else:
+            session["reservation"] = reservation
+            reply = f"Thanks {reservation['first_name']}! I've found your reservation for {reservation['property']} from {reservation['check_in']} to {reservation['check_out']}. How can I assist you with your stay?"
+            confidence = "HIGH_CONFIDENCE"
+
+        log_interaction(session_id, user_message, reply, confidence)
+
+        return jsonify({
+            "reply": reply, 
+            "confidence": confidence,
+            "session_id": session_id
+        })
+    
+    # Detect Reservation Lookup Intent
+    reservation_keywords = ["i have a reservation", "look up my booking", "my booking",
+                            "check my reservation", "find my reservation", "my confirmation"]
+
+    if any(keyword in user_message.lower() for keyword in reservation_keywords):
+        session["state"] = "waiting_for_confirmation"
+        reply = "Sure! Please share your confirmation number and I'll pull up your reservation."
+        log_interaction(session_id, user_message, reply, "HIGH_CONFIDENCE")
+        return jsonify({"reply": reply, "session_id": session_id})
     
     try:
         response = openai_client.chat.completions.create(

@@ -10,6 +10,7 @@ const ChatUI: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
+  const [sessionId, setSessionId] = useState<string | null>(null);
 
   const sendMessage = async (): Promise<void> => {
     if (!input.trim()) return;
@@ -25,10 +26,12 @@ const ChatUI: React.FC = () => {
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ message: input })
+        body: JSON.stringify({ message: input, session_id: sessionId })
       });
 
-      const data: { reply?: string } = await response.json();
+      const data: { reply?: string; session_id?: string } = await response.json();
+      if (data.session_id) setSessionId(data.session_id);
+
 
       const botMessage: Message = {
         sender: "bot",
