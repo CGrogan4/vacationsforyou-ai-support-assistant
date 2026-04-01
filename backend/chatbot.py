@@ -190,6 +190,10 @@ def chat():
     log_interaction("no-session", user_message, reply, confidence)
     return jsonify({"reply": reply, "confidence": confidence,})
 
+@app.route("/logs", methods=["GET"])
+def logs():
+    return jsonify(list(sessions.values()))
+
 # The lookup route
 @app.route("/lookup", methods=["POST"])
 def lookup():
