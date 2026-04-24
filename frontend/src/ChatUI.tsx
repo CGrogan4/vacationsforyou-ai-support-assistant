@@ -4,13 +4,22 @@ import "./ChatUI.css";
 type Message = {
   sender: "user" | "bot";
   text: string;
+  time: string;
+};
+
+const getTime = (): string => {
+  return new Date().toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit"
+  });
 };
 
 const ChatUI: React.FC = () => {
    const [messages, setMessages] = useState<Message[]>([
   {
     sender: "bot",
-    text: "Welcome to Vacations For You! How can I assist you today?"
+    text: "Welcome to Vacations For You! Ask about bookings, properties, check-in times, or cancellations. I’m here to help with all your travel needs.",
+    time: getTime()
   }
   ]);
   const [input, setInput] = useState<string>("");
@@ -20,7 +29,7 @@ const ChatUI: React.FC = () => {
   const sendMessage = async (): Promise<void> => {
     if (!input.trim()) return;
 
-    const userMessage: Message = { sender: "user", text: input };
+    const userMessage: Message = { sender: "user", text: input, time: getTime() };
     setMessages((prev) => [...prev, userMessage]);
     setInput("");
     setLoading(true);
@@ -40,14 +49,16 @@ const ChatUI: React.FC = () => {
 
       const botMessage: Message = {
         sender: "bot",
-        text: data.reply || "No response."
+        text: data.reply || "No response.", 
+        time: getTime()
       };
 
       setMessages((prev) => [...prev, botMessage]);
     } catch (error) {
       const errorMessage: Message = {
         sender: "bot",
-        text: "Error connecting to server."
+        text: "Error connecting to server.", 
+        time: getTime()
       };
 
       setMessages((prev) => [...prev, errorMessage]);
@@ -66,19 +77,40 @@ const ChatUI: React.FC = () => {
     setInput(e.target.value);
   };
 
+
   return (
     <div className="chat-container">
-      <div className="chat-header" style={{background: '#0a89ffff', color: 'white', padding: '10px', textAlign: 'center'}}>
-      Hi! Welcome to Vacations For You
-    </div>
+        <div
+          className="chat-header"
+          style={{
+            background: '#0a89ffff',
+            color: 'white',
+            padding: '10px',
+            textAlign: 'left'
+          }}
+        >
+          <h3> Vacations For YOU</h3>
+          <small>AI Support Agent – here to help you plan your trip</small>
+        </div>
 
     <div className="chat-box">
       {messages.map((msg, index) => (
         <div
           key={index}
-          className={`message ${msg.sender === "user" ? "user" : "bot"}`}
+          className={`message-row ${msg.sender}`}
         >
-          {msg.text}
+          {msg.sender === "bot" && (
+            <div className="avatar bot-avatar">🏔️</div>
+          )}
+
+          <div className={`message ${msg.sender}`}>
+            {msg.text}
+            <div className="timestamp">{msg.time}</div>
+          </div>
+
+          {msg.sender === "user" && (
+            <div className="avatar user-avatar">👤</div>
+          )}
         </div>
       ))}
       {loading && <div className="loading">Typing...</div>}
