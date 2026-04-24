@@ -83,14 +83,35 @@ const ChatUI: React.FC = () => {
         <div
           className="chat-header"
           style={{
-            background: '#0a89ffff',
+            background: 'rgb(58, 119, 177)',
             color: 'white',
-            padding: '10px',
-            textAlign: 'left'
+            padding: '8px',
+            textAlign: 'left',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
           }}
         >
-          <h3> Vacations For YOU</h3>
-          <small>AI Support Agent – here to help you plan your trip</small>
+
+            <div
+              style={{
+                width: '28px',
+                height: '28px',
+                borderRadius: '50%',
+                backgroundColor: 'white',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '16px',
+                flexShrink: 0,
+              }}
+            >
+              🏔️
+            </div>
+          <div>
+            <h3> Vacations For YOU</h3>
+            <small>AI Support Agent – here with all your travel needs</small>
+          </div>
         </div>
 
     <div className="chat-box">
@@ -122,7 +143,7 @@ const ChatUI: React.FC = () => {
           value={input}
           onChange={handleChange}
           onKeyDown={handleKeyDown}
-          placeholder="Type here..."
+          placeholder="Write a message..."
         />
         <button onClick={sendMessage} disabled={loading}>
           Send
