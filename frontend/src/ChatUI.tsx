@@ -7,7 +7,12 @@ type Message = {
 };
 
 const ChatUI: React.FC = () => {
-  const [messages, setMessages] = useState<Message[]>([]);
+   const [messages, setMessages] = useState<Message[]>([
+  {
+    sender: "bot",
+    text: "Welcome to Vacations For You! How can I assist you today?"
+  }
+  ]);
   const [input, setInput] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
