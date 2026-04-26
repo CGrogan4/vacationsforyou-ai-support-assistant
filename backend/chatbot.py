@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+from rag import load_vectorstore, search_manual
 from openai import OpenAI
 import requests
 import os
@@ -19,6 +20,8 @@ STREAMLINE_TOKEN_KEY = os.getenv("STREAMLINE_TOKEN_KEY")
 STREAMLINE_TOKEN_SECRET = os.getenv("STREAMLINE_TOKEN_SECRET")
 
 sessions = {}
+vectorstore = load_vectorstore()
+print("Vector store loaded successfully!")
 
 SYSTEM_PROMPT = """
 You are a friendly and knowledgeable virtual assistant for Vacations for YOU, a vacation rental company with over 23 years of experience managing 550+ properties across the U.S.
@@ -171,10 +174,13 @@ def chat():
         return jsonify({"reply": reply, "session_id": session_id})
     
     try:
+        # load relevant manual context based on user message
+        manual_context = search_manual(user_message, vectorstore)
+
         response = openai_client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
-                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "system", "content": SYSTEM_PROMPT + "\n\nRelevant information from the manual:\n" + manual_context},
                 {"role": "user", "content": user_message}
             ],
             max_tokens=500,
