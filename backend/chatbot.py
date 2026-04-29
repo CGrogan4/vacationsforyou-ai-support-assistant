@@ -171,7 +171,7 @@ def chat():
         return jsonify({
             "reply": reply, 
             "confidence": confidence,
-            "session_id": session_id
+            "session_id": session_id,
         })
     
     # Detect Reservation Lookup Intent
@@ -183,6 +183,8 @@ def chat():
         reply = "Sure! Please share your confirmation number and I'll pull up your reservation."
         log_interaction(session_id, user_message, reply, "HIGH_CONFIDENCE")
         return jsonify({"reply": reply, "session_id": session_id})
+    
+    manual_context = ""
     
     try:
         # load relevant manual context based on user message
@@ -199,13 +201,21 @@ def chat():
         )
         reply = response.choices[0].message.content
 
+        #log which mannual sections were used for context in the response for better traceability
+        log_interaction(session_id, user_message, reply, detect_confidence(reply))
+        print(f"CONTEXT USED: {manual_context[:200]}...")
+
     except Exception as e:
         print(f"Error generating response: {e}")
         reply = "Sorry, I'm having trouble generating a response right now."
 
     confidence = detect_confidence(reply)
-    log_interaction("no-session", user_message, reply, confidence)
-    return jsonify({"reply": reply, "confidence": confidence,})
+    return jsonify({
+        "reply": reply, 
+        "confidence": confidence,
+        "session_id": session_id,
+        "justification": manual_context[:300] if manual_context else None
+    })
 
 @app.route("/logs", methods=["GET"])
 def logs():
