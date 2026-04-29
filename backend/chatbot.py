@@ -105,11 +105,22 @@ def chat():
             "reservation": None, 
             "history": [],
             "state": "normal",
-            "pending_confirmation": None
+            "pending_confirmation": None,
+            "last_active": datetime.utcnow()
         }
     
     session = sessions[session_id]
     state = session.get("state", "normal")
+
+    # Session timeout handling (30 minutes of inactivity)
+    time_out_minutes = 30
+    last_active = session.get("last_active", datetime.utcnow())
+    if (datetime.utcnow() - last_active).total_seconds() > time_out_minutes * 60:
+        sessions.pop(session_id)
+        return jsonify({"error": "Session expired due to inactivity. Please start a new conversation."}), 401
+    
+    # Update last active time
+    session["last_active"] = datetime.utcnow()
     
     # State: waiting for confirmation number
     if state == "waiting_for_confirmation":
