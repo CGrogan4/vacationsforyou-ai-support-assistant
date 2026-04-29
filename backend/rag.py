@@ -16,8 +16,8 @@ def load_manual(pdf_path: str):
 
 def chunk_documents(pages):
     splitter = RecursiveCharacterTextSplitter(
-        chunk_size=500,
-        chunk_overlap=50
+        chunk_size=300,
+        chunk_overlap=75
     )
     chunks = splitter.split_documents(pages)
     print(f"Created {len(chunks)} chunks.")
@@ -42,7 +42,7 @@ def load_vectorstore():
     )
     return vectorstore
 
-def search_manual(query: str, vectorstore, k: int = 3) -> str:
+def search_manual(query: str, vectorstore, k: int = 5) -> str:
     results = vectorstore.similarity_search(query, k=k)
     context = "\n\n".join([doc.page_content for doc in results])
     return context
